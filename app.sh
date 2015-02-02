@@ -27,7 +27,7 @@ pushd "target/${OPENSSL_FOLDER}"
   --openssldir="${DEST}/etc/ssl" \
   --with-zlib-include="${DEPS}/include" \
   --with-zlib-lib="${DEST}/lib" \
-  shared zlib-dynamic threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS}
+  shared zlib-dynamic threads linux-armv4 no-asm -DL_ENDIAN ${CFLAGS} ${LDFLAGS}
 sed -i -e "s/-O3//g" Makefile
 make -j1
 make install_sw
