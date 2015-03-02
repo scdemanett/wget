@@ -40,7 +40,7 @@ popd
 
 ### WGET ###
 _build_wget() {
-local VERSION="1.16.1"
+local VERSION="1.16.2"
 local FOLDER="wget-${VERSION}"
 local FILE="${FOLDER}.tar.xz"
 local URL="http://ftp.gnu.org/gnu/wget/${FILE}"
@@ -50,7 +50,6 @@ pushd "target/${FOLDER}"
 ./configure --host="${HOST}" --prefix="${DEST}" --mandir="${DEST}/man"  --with-ssl=openssl --disable-pcre
 make
 make install
-echo "ca_certificate = ${DEST}/etc/ssl/certs/ca-certificates.crt" >> "${DEST}/etc/wgetrc"
 popd
 }
 
