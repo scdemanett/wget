@@ -49,13 +49,16 @@ pushd "target/${FOLDER}"
 make
 make install DESTDIR="${DEST}"
 "${STRIP}" -s -R .comment -R .note -R .note.ABI-tag "${DEST}/bin/wget"
-echo "ca_certificate = /etc/cacert.pem" >> "${DEST}/etc/wgetrc"
+echo "ca_certificate = /etc/cacert.crt" >> "${DEST}/etc/wgetrc"
 popd
 }
 
 ### CERTIFICATES ###
 _build_certificates() {
-wget -O "${DEST}/etc/cacert.pem" "http://curl.haxx.se/ca/cacert.pem"
+# update CA certificates on a Debian/Ubuntu machine:
+#sudo update-ca-certificates
+cp -vf /etc/ssl/certs/ca-certificates.crt "${DEST}/etc/cacert.crt"
+#wget -O "${DEST}/etc/ssl/certs/ca-certificates.crt" "http://curl.haxx.se/ca/cacert.pem"
 }
 
 _build() {
