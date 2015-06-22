@@ -58,9 +58,9 @@ popd
 ### CERTIFICATES ###
 _build_certificates() {
 # update CA certificates on a Debian/Ubuntu machine:
-#sudo update-ca-certificates
-#cp -vf /etc/ssl/certs/ca-certificates.crt "${DEST}/etc/ssl/certs/"
-wget -O "${DEST}/etc/ssl/certs/ca-certificates.crt" "http://curl.haxx.se/ca/cacert.pem"
+sudo update-ca-certificates
+cp -vf /etc/ssl/certs/ca-certificates.crt "${DEST}/etc/ssl/certs/"
+#wget -O "${DEST}/etc/ssl/certs/ca-certificates.crt" "http://curl.haxx.se/ca/cacert.pem"
 }
 
 _build() {
