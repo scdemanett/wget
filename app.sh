@@ -1,3 +1,6 @@
+CFLAGS="${CFLAGS:-} -ffunction-sections -fdata-sections"
+LDFLAGS="${LDFLAGS:-} -L${DEPS}/lib -Wl,--gc-sections"
+
 ### ZLIB ###
 _build_zlib() {
 local VERSION="1.2.8"
@@ -7,10 +10,10 @@ local URL="http://zlib.net/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --prefix="${DEPS}" --libdir="${DEST}/lib"
+./configure --prefix="${DEPS}" --static #--libdir="${DEST}/lib"
 make
 make install
-rm -v "${DEST}/lib/libz.a"
+#rm -v "${DEST}/lib/libz.a"
 popd
 }
 
@@ -26,17 +29,19 @@ cp -vf "src/${FOLDER}-parallel-build.patch" "target/${FOLDER}/"
 pushd "target/${FOLDER}"
 patch -p1 -i "${FOLDER}-parallel-build.patch"
 ./Configure --prefix="${DEPS}" --openssldir="${DEST}/etc/ssl" \
-  zlib-dynamic --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
-  shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
+  zlib --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
+  no-shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
   -Wa,--noexecstack -Wl,-z,noexecstack
+#  zlib-dynamic --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
+#  shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
 sed -i -e "s/-O3//g" Makefile
 make
 make install_sw
-cp -vfaR "${DEPS}/lib"/* "${DEST}/lib/"
-rm -vfr "${DEPS}/lib"
-rm -vf "${DEST}/lib/libcrypto.a" "${DEST}/lib/libssl.a"
-sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libcrypto.pc"
-sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libssl.pc"
+#cp -vfaR "${DEPS}/lib"/* "${DEST}/lib/"
+#rm -vfr "${DEPS}/lib"
+#rm -vf "${DEST}/lib/libcrypto.a" "${DEST}/lib/libssl.a"
+#sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libcrypto.pc"
+#sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libssl.pc"
 popd
 }
 
@@ -57,6 +62,7 @@ make
 make install
 echo "ca_certificate = ${DEST}/etc/ssl/certs/ca-certificates.crt" >> "${DEST}/etc/wgetrc"
 mv -f "${DEST}/etc/wgetrc" "${DEST}/etc/wgetrc.default"
+"${STRIP}" -s -R .comment -R .note -R .note.ABI-tag "${DEST}/bin/wget"
 popd
 }
 
