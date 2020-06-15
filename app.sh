@@ -47,7 +47,7 @@ local FOLDER="wget-${VERSION}"
 local FILE="${FOLDER}.tar.gz"
 local URL="http://ftp.gnu.org/gnu/wget/${FILE}"
 
-_download_gz "${FILE}" "${URL}" "${FOLDER}"
+_download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
 PKG_CONFIG_PATH="${DEST}/lib/pkgconfig" \
   ./configure --host="${HOST}" --prefix="${DEST}" --mandir="${DEST}/man" \
