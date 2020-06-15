@@ -3,56 +3,51 @@ LDFLAGS="${LDFLAGS:-} -L${DEPS}/lib -Wl,--gc-sections"
 
 ### ZLIB ###
 _build_zlib() {
-local VERSION="1.2.8"
+local VERSION="1.2.11"
 local FOLDER="zlib-${VERSION}"
 local FILE="${FOLDER}.tar.gz"
 local URL="http://zlib.net/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --prefix="${DEPS}" --static #--libdir="${DEST}/lib"
+./configure --prefix="${DEPS}" --libdir="${DEST}/lib" --shared
 make
 make install
-#rm -v "${DEST}/lib/libz.a"
 popd
 }
 
 ### OPENSSL ###
 _build_openssl() {
-local VERSION="1.0.2d"
+local VERSION="1.1.1g"
 local FOLDER="openssl-${VERSION}"
 local FILE="${FOLDER}.tar.gz"
-local URL="http://mirror.switch.ch/ftp/mirror/openssl/source/${FILE}"
+local URL="http://www.openssl.org/source/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
-cp -vf "src/${FOLDER}-parallel-build.patch" "target/${FOLDER}/"
 pushd "target/${FOLDER}"
-patch -p1 -i "${FOLDER}-parallel-build.patch"
 ./Configure --prefix="${DEPS}" --openssldir="${DEST}/etc/ssl" \
-  zlib --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
-  no-shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
+  zlib-dynamic --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
+  shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
   -Wa,--noexecstack -Wl,-z,noexecstack
-#  zlib-dynamic --with-zlib-include="${DEPS}/include" --with-zlib-lib="${DEPS}/lib" \
-#  shared threads linux-armv4 -DL_ENDIAN ${CFLAGS} ${LDFLAGS} \
 sed -i -e "s/-O3//g" Makefile
 make
 make install_sw
-#cp -vfaR "${DEPS}/lib"/* "${DEST}/lib/"
-#rm -vfr "${DEPS}/lib"
-#rm -vf "${DEST}/lib/libcrypto.a" "${DEST}/lib/libssl.a"
-#sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libcrypto.pc"
-#sed -e "s|^libdir=.*|libdir=${DEST}/lib|g" -i "${DEST}/lib/pkgconfig/libssl.pc"
+cp -vfa "${DEPS}/lib/libssl.so"* "${DEST}/lib/"
+cp -vfa "${DEPS}/lib/libcrypto.so"* "${DEST}/lib/"
+cp -vfaR "${DEPS}/lib/engines"* "${DEST}/lib/"
+cp -vfaR "${DEPS}/lib/pkgconfig" "${DEST}/lib/"
+rm -vf "${DEPS}/lib/libcrypto.a" "${DEPS}/lib/libssl.a"
 popd
 }
 
 ### WGET ###
 _build_wget() {
-local VERSION="1.16.3"
+local VERSION="1.20.3"
 local FOLDER="wget-${VERSION}"
-local FILE="${FOLDER}.tar.xz"
+local FILE="${FOLDER}.tar.gz"
 local URL="http://ftp.gnu.org/gnu/wget/${FILE}"
 
-_download_xz "${FILE}" "${URL}" "${FOLDER}"
+_download_gz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
 PKG_CONFIG_PATH="${DEST}/lib/pkgconfig" \
   ./configure --host="${HOST}" --prefix="${DEST}" --mandir="${DEST}/man" \

@@ -7,7 +7,7 @@
 
 framework_version="2.1"
 name="wget"
-version="1.16.3"
+version="1.20.3"
 description="Command-line download utility"
 depends=""
 webui=""
